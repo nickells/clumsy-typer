@@ -2,12 +2,17 @@
 <html>
 <link href="https://fonts.googleapis.com/css?family=Arvo" rel="stylesheet">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<style>p {font-family: 'Arvo', serif; font-size: 20px;}</style>
+<style>
+  p {font-family: 'Arvo', serif; font-size: 20px;}
+  textarea {width: 500px; height: 200px;}
+</style>
 <head>
   <title></title>
 </head>
 <body>
 <p id="main"></p>
+<textarea id="input"></textarea>
+<div>Accuracy: <input id="acc" type="range" min="0" max="100"></input><button id="button">Go</button></div>
 <script type="text/javascript" src="typer.js"></script>
 <script type="text/javascript" src="index.js"></script>
 </body>

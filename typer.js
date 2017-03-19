@@ -1,8 +1,15 @@
 // let input = document.getElementById('input')
 function typer(
   message = 'RollerCoaster Tycoon is a series of video games that simulate amusement park management. Each game in the series challenges players with open-ended amusement park management and development, and allowing players to construct and customize their own unique roller coasters.',
-  container = document.getElementById('main')
+  container
 ){
+
+  let PERCENT_ERROR = 15
+  let BASE_SPEED = 100
+  const PERCENT_ERROR_ON_CORRECTION = PERCENT_ERROR - ((1/3) * PERCENT_ERROR)
+  const SPEED_VARIATION = 50
+  const RATE_SLOWDOWN_WHEN_CORRECTING = 100
+
   let alphabet = ['qwertyuiop', 'asdfghjkl;', 'zxcvbnm,./',]
   let output = ''
 
@@ -70,15 +77,13 @@ function typer(
     return output[index-1]
   }
 
-  const PERCENT_ERROR = 15
-  const PERCENT_ERROR_ON_CORRECTION = 10
-  const BASE_SPEED = 100
-  const SPEED_VARIATION = 50
-  const RATE_SLOWDOWN_WHEN_CORRECTING = 100
 
   let index = 0
   let deleteThisCharacter = false
   let isCorrection = false
+  let isStopped = false
+
+  let _onComplete = () => {}
 
   function type(){
     if (
@@ -116,7 +121,10 @@ function typer(
     // render
     requestAnimationFrame(()=>container.innerHTML = output)
     // stop when complete
-    if (output === message) return
+    if (output === message || isStopped) {
+      _onComplete()
+      return
+    }
     else {
       let variation = SPEED_VARIATION - (Math.random() * SPEED_VARIATION * 2)
       if (isCorrection || deleteThisCharacter) {
@@ -127,8 +135,20 @@ function typer(
   }
 
   return {
-    go() {
+    go () {
       setTimeout(type, 200)
+    },
+    stop (){
+      isStopped = true
+    },
+    onComplete (func){
+      _onComplete = func
+    },
+    setPercentError (num){
+      PERCENT_ERROR = num
+    },
+    setBaseSpeed (num) {
+      BASE_SPEED = num
     }
   }
 }
