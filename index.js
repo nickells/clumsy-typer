@@ -13,6 +13,7 @@ function getRandomKey(object){
 }
 
 function getTypo(letter){
+  const letterWasUppercase = letter === letter.toUpperCase()
   letter = letter.toLowerCase()
   let options = {
     'up': [-1, 0],
@@ -35,12 +36,13 @@ function getTypo(letter){
   // avoid edge of keyboard
   if (row === 0) delete options.up
   if (row === 2) delete options.down
-  if (column === alphabet[row].length) delete options.right
+  if (column === alphabet[row].length -1) delete options.right
   if (column === 0) delete options.left
   let thisTypo = options[getRandomKey(options)]
   row += thisTypo[0]
   column += thisTypo[1]
-  return alphabet[row][column]
+  if (letterWasUppercase) return alphabet[row][column].toUpperCase()
+  else return alphabet[row][column]
 }
 
 function repeatLastLetter(index){
@@ -50,39 +52,44 @@ function repeatLastLetter(index){
 
 
 const CORRECT_MISTAKES = true
-const PERCENT_ERROR = 20
+const PERCENT_ERROR = 25
 const ALWAYS_CORRECT_CORRECTLY = false
 
 let index = 0
-let isCorrection = false
+let deleteThisCharacter = false
 let interval = setInterval(function(){
   // 10 percent chance of making an error
-  if (percentChance(PERCENT_ERROR) && message[index] !== ' ' && !isCorrection  && index != 0) {
+  if (
+    percentChance(PERCENT_ERROR)
+    && message[index] !== ' '
+    && !deleteThisCharacter 
+    ) {
     // pick between adjacent or repeated letter
     if (percentChance(50)) {
-      console.log('getting typo for', message[index])
       const typo = getTypo(message[index])
-      console.log('got', typo)
       output += typo
     } else {
-      console.log('repeating letter')
       output += repeatLastLetter(index)
     }
+    // turn on correction mode for next cycle
     if (CORRECT_MISTAKES) {
-      isCorrection = true
+      deleteThisCharacter = true
     }
     index++
-  } else{
-    if (isCorrection){
+  } else {
+    if (deleteThisCharacter){
+      // delete one character
       output = output.slice(0, -1)
-      index -= 2
-      isCorrection = false
-    } else
-    // correct
-    // isCorrection = false
-    output += message[index]
-    index++
+      index -= 1
+      deleteThisCharacter = false
+    } else {
+    // type correct letter
+      output += message[index]
+      index++
+    }
+    
   }
+  // render
   container.innerHTML = output
   // stop when complete
   if (output === message || index === message.length) clearInterval(interval)
