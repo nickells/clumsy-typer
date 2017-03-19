@@ -1,7 +1,8 @@
 let alphabet = ['qwertyuiop', 'asdfghjkl;', 'zxcvbnm,./',]
 let container = document.getElementById('main')
-
+// let input = document.getElementById('input')
 let message = 'RollerCoaster Tycoon is a series of video games that simulate amusement park management. Each game in the series challenges players with open-ended amusement park management and development, and allowing players to construct and customize their own unique roller coasters.'
+
 let output = ''
 function percentChance(num){
   return Math.random() <= (num / 100)
@@ -41,30 +42,36 @@ function getTypo(letter){
   let thisTypo = options[getRandomKey(options)]
   row += thisTypo[0]
   column += thisTypo[1]
-  if (letterWasUppercase) return alphabet[row][column].toUpperCase()
-  else return alphabet[row][column]
+  // catch for special chars
+  if (alphabet[row][column] === undefined) return letter
+  else return letterWasUppercase ? alphabet[row][column].toUpperCase() : alphabet[row][column]
 }
 
 function repeatLastLetter(index){
   return output[index-1]
 }
 
-
-
-const PERCENT_ERROR = 20
-const PERCENT_ERROR_ON_CORRECTION = 25
+const PERCENT_ERROR = 15
+const PERCENT_ERROR_ON_CORRECTION = 10
+const BASE_SPEED = 100
+const SPEED_VARIATION = 50
+const RATE_SLOWDOWN_WHEN_CORRECTING = 100
 
 let index = 0
 let deleteThisCharacter = false
 let isCorrection = false
-let interval = setInterval(function(){
-  // 10 percent chance of making an error
+
+function go(){
+  type()
+}
+go()
+
+function type(){
   if (
     percentChance(PERCENT_ERROR)
     && message[index] !== ' '
     && !deleteThisCharacter
     && index !== 0
-    // 60 percent chance of hitting the right letter on a correction
     && !(isCorrection && percentChance(100 - PERCENT_ERROR_ON_CORRECTION))
     ) {
     // pick between adjacent or repeated letter
@@ -93,8 +100,17 @@ let interval = setInterval(function(){
     
   }
   // render
-  container.innerHTML = output
+  requestAnimationFrame(()=>container.innerHTML = output)
   // stop when complete
-  if (output === message || index === message.length) clearInterval(interval)
-}, 100)
+  if (output === message || index === message.length) {
+    return
+  }
+  else {
+    let variation = SPEED_VARIATION - (Math.random() * SPEED_VARIATION * 2)
+    if (isCorrection || deleteThisCharacter) {
+      variation += RATE_SLOWDOWN_WHEN_CORRECTING
+    }
+    setTimeout(type, BASE_SPEED + variation)
+  }
+}
 
