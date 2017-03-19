@@ -51,30 +51,31 @@ function repeatLastLetter(index){
 
 
 
-const CORRECT_MISTAKES = true
-const PERCENT_ERROR = 25
-const ALWAYS_CORRECT_CORRECTLY = false
+const PERCENT_ERROR = 20
+const PERCENT_ERROR_ON_CORRECTION = 25
 
 let index = 0
 let deleteThisCharacter = false
+let isCorrection = false
 let interval = setInterval(function(){
   // 10 percent chance of making an error
   if (
     percentChance(PERCENT_ERROR)
     && message[index] !== ' '
-    && !deleteThisCharacter 
+    && !deleteThisCharacter
+    && index !== 0
+    // 60 percent chance of hitting the right letter on a correction
+    && !(isCorrection && percentChance(100 - PERCENT_ERROR_ON_CORRECTION))
     ) {
     // pick between adjacent or repeated letter
-    if (percentChance(50)) {
+    if (percentChance(50) && index !== 0) {
       const typo = getTypo(message[index])
       output += typo
     } else {
       output += repeatLastLetter(index)
     }
-    // turn on correction mode for next cycle
-    if (CORRECT_MISTAKES) {
-      deleteThisCharacter = true
-    }
+    // turn on deletion mode for next cycle
+    deleteThisCharacter = true
     index++
   } else {
     if (deleteThisCharacter){
@@ -82,8 +83,10 @@ let interval = setInterval(function(){
       output = output.slice(0, -1)
       index -= 1
       deleteThisCharacter = false
+      isCorrection = true
     } else {
     // type correct letter
+      isCorrection = false
       output += message[index]
       index++
     }
