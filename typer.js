@@ -53,7 +53,6 @@ function typer(
     })
     let row = location[0]
     let column = location[1]
-    let key = alphabet[row][column]
     // avoid edge of keyboard
     if (row === 0) options = removeKey('up', options)
     if (row === 2) options = removeKey('down', options)
@@ -90,7 +89,7 @@ function typer(
       && !(isCorrection && percentChance(100 - PERCENT_ERROR_ON_CORRECTION))
       ) {
       // pick between adjacent or repeated letter
-      if (percentChance(50) && index !== 0) {
+      if (percentChance(50)) {
         const typo = getTypo(message[index])
         output += typo
       } else {
@@ -117,9 +116,7 @@ function typer(
     // render
     requestAnimationFrame(()=>container.innerHTML = output)
     // stop when complete
-    if (output === message) {
-      return
-    }
+    if (output === message) return
     else {
       let variation = SPEED_VARIATION - (Math.random() * SPEED_VARIATION * 2)
       if (isCorrection || deleteThisCharacter) {
